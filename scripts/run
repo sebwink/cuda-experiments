@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
 WHAT=$1
+shift
 
-build/examples/$WHAT
+build/src/$WHAT $@
