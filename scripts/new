@@ -8,11 +8,11 @@ set -e
 
 recursively_add_subdirectories() {
   EXPATH=$1
-  mkdir -p $SRC_ROOT/$EXPATH && cd $SRC_ROOT
-  for d in $(echo $EXPATH | tr "/" "\n"); do 
-    cd $d	
+  mkdir -p "$SRC_ROOT/$EXPATH" && cd $SRC_ROOT
+  for d in $(echo "$EXPATH" | tr "/" "\n"); do
+    cd "$d"
 	echo "add_subdirectory($d)" >> ../CMakeLists.txt
-	cat ../CMakeLists.txt | sort | uniq > ../CMakeLists.txt.temp
+	sort ../CMakeLists.txt | uniq > ../CMakeLists.txt.temp
 	mv ../CMakeLists.txt.temp ../CMakeLists.txt
   done
 }
@@ -20,34 +20,36 @@ recursively_add_subdirectories() {
 stub_executable_cu() {
   SOURCE_FILE=$1.cu
   EXAMPLE_PATH=$2
-  echo "#include <iostream>" > $SOURCE_FILE 
-  echo "" >> $SOURCE_FILE 
-  echo "int main() {" >> $SOURCE_FILE 
-  echo "    std::cout << \"$EXAMPLE_PATH initialized!\" << std::endl;" >> $SOURCE_FILE 
-  echo "}" >> $SOURCE_FILE
+  {
+    echo "#include <iostream>";
+    echo "";
+    echo "int main() {";
+    echo "    std::cout << \"$EXAMPLE_PATH initialized!\" << std::endl;";
+    echo "}"
+  } > "$SOURCE_FILE"
 }
 
 setup_mfoe_example() {
-  EXPATH=$(dirname $1)
-  EXLEAF=$(basename $1)
-  recursively_add_subdirectories $EXPATH
-  mkdir $EXLEAF && cd $EXLEAF 
+  EXPATH=$(dirname "$1")
+  EXLEAF=$(basename "$1")
+  recursively_add_subdirectories "$EXPATH"
+  mkdir "$EXLEAF" && cd "$EXLEAF"
   echo "add_subdirectory($EXLEAF)" >> ../CMakeLists.txt 
   echo "multiple_cppfiles_one_executable(\"\" \"\" \"\")" > CMakeLists.txt
-  stub_executable_cu main $1
+  stub_executable_cu main "$1"
 }
 
 
 setup_ofoe_example() {
-  EXPATH=$(dirname $1)
-  EXLEAF=$(basename $1)
-  recursively_add_subdirectories $EXPATH
+  EXPATH=$(dirname "$1")
+  EXLEAF=$(basename "$1")
+  recursively_add_subdirectories "$EXPATH"
   echo "one_cppfile_one_executable(\"\" \"\" \"\")" > CMakeLists.txt
-  stub_executable_cu $EXLEAF $1
+  stub_executable_cu "$EXLEAF" "$1"
 }
 
 if [ "$MODE" == "mfoe" ]; then
-  setup_mfoe_example $EXAMPLE_PATH
+  setup_mfoe_example "$EXAMPLE_PATH"
 else # ofoe
-  setup_ofoe_example $EXAMPLE_PATH
+  setup_ofoe_example "$EXAMPLE_PATH"
 fi

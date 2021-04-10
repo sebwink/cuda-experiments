@@ -1,16 +1,15 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.19)
 
 project(cuda LANGUAGES CXX CUDA VERSION 0.0.42)
-include(FindCUDAToolkit)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CPM_DOWNLOAD_VERSION 0.32.0)
 
+include(FindCUDAToolkit)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(get_cpm)
-include(CPM_${CPM_DOWNLOAD_VERSION})
 include(multiple_cppfiles_one_executable)
 include(one_cppfile_one_executable)
 
@@ -21,7 +20,7 @@ CPMAddPackage(
   DOWNLOAD_ONLY YES
 )
 
-SET(CUDA_HELPER_INCLUDE_PATH ${CUDA_HELPER_HEADERS_SOURCE_DIR}/Common)
-SET(CUDA_COMMON_INCLUDES ${CUDA_HELPER_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/lib/include)
+set(CUDA_HELPER_INCLUDE_PATH ${CUDA_HELPER_HEADERS_SOURCE_DIR}/Common)
+set(CUDA_COMMON_INCLUDES ${CUDA_HELPER_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/lib/include)
 
 add_subdirectory(src)
