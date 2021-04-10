@@ -1,0 +1,53 @@
+#!/bin/bash
+
+SRC_ROOT=src
+EXAMPLE_PATH=$1
+MODE=$2
+
+set -e
+
+recursively_add_subdirectories() {
+  EXPATH=$1
+  mkdir -p $SRC_ROOT/$EXPATH && cd $SRC_ROOT
+  for d in $(echo $EXPATH | tr "/" "\n"); do 
+    cd $d	
+	echo "add_subdirectory($d)" >> ../CMakeLists.txt
+	cat ../CMakeLists.txt | sort | uniq > ../CMakeLists.txt.temp
+	mv ../CMakeLists.txt.temp ../CMakeLists.txt
+  done
+}
+
+stub_executable_cu() {
+  SOURCE_FILE=$1.cu
+  EXAMPLE_PATH=$2
+  echo "#include <iostream>" > $SOURCE_FILE 
+  echo "" >> $SOURCE_FILE 
+  echo "int main() {" >> $SOURCE_FILE 
+  echo "    std::cout << \"$EXAMPLE_PATH initialized!\" << std::endl;" >> $SOURCE_FILE 
+  echo "}" >> $SOURCE_FILE
+}
+
+setup_mfoe_example() {
+  EXPATH=$(dirname $1)
+  EXLEAF=$(basename $1)
+  recursively_add_subdirectories $EXPATH
+  mkdir $EXLEAF && cd $EXLEAF 
+  echo "add_subdirectory($EXLEAF)" >> ../CMakeLists.txt 
+  echo "multiple_cppfiles_one_executable(\"\" \"\" \"\")" > CMakeLists.txt
+  stub_executable_cu main $1
+}
+
+
+setup_ofoe_example() {
+  EXPATH=$(dirname $1)
+  EXLEAF=$(basename $1)
+  recursively_add_subdirectories $EXPATH
+  echo "one_cppfile_one_executable(\"\" \"\" \"\")" > CMakeLists.txt
+  stub_executable_cu $EXLEAF $1
+}
+
+if [ "$MODE" == "mfoe" ]; then
+  setup_mfoe_example $EXAMPLE_PATH
+else # ofoe
+  setup_ofoe_example $EXAMPLE_PATH
+fi

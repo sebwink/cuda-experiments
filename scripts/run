@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+WHAT=$1
+
+build/examples/$WHAT
